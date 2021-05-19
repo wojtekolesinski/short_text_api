@@ -1,7 +1,15 @@
-from .serializers import ShortTextSerializer
+from .serializers import ShortTextSerializer, RegisterSerializer
 from .models import ShortText
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, generics
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.models import User
+
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = [permissions.AllowAny]
+    serializer_class = RegisterSerializer
 
 
 class ShortTextViewSet(viewsets.ModelViewSet):
@@ -9,10 +17,9 @@ class ShortTextViewSet(viewsets.ModelViewSet):
     serializer_class = ShortTextSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
-    # filterset_fields = ['viewcount', ]
     filterset_fields = {
         'viewcount': ['exact', 'gt', 'lt', 'gte', 'lte'],
-        'text': ['contains'],
+        'text': ['exact', 'contains'],
     }
 
     def list(self, request, *args, **kwargs):
@@ -32,4 +39,3 @@ class ShortTextViewSet(viewsets.ModelViewSet):
         text.viewcount = 0
         text.save()
         return super(ShortTextViewSet, self).update(request, *args, **kwargs)
-
