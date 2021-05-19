@@ -1,29 +1,35 @@
-from django.shortcuts import render
-from api.serializers import ShortTextSerializer
+from .serializers import ShortTextSerializer
 from .models import ShortText
 from rest_framework import viewsets, permissions
-from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
-
-# Create your views here.
 
 class ShortTextViewSet(viewsets.ModelViewSet):
     queryset = ShortText.objects.all()
     serializer_class = ShortTextSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    # filterset_fields = ['viewcount', ]
+    filterset_fields = {
+        'viewcount': ['exact', 'gt', 'lt', 'gte', 'lte'],
+        'text': ['contains'],
+    }
 
-    # def perform_create(self, serializer):
-    #     serializer.save(owner=self.request.user)
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        for shortText in queryset:
+        for shortText in self.get_queryset():
             shortText.viewcount += 1
             shortText.save()
         return super(viewsets.ModelViewSet, self).list(request, *args, **kwargs)
-        # serializer = ShortTextSerializer(queryset, many=True)
-        # return Response(serializer.data)
-        
+
     def retrieve(self, request, *args, **kwargs):
-        print('im here!')
+        text = self.get_object()
+        text.viewcount += 1
+        text.save()
         return super(viewsets.ModelViewSet, self).retrieve(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        text = self.get_object()
+        text.viewcount = 0
+        text.save()
+        return super(ShortTextViewSet, self).update(request, *args, **kwargs)
 

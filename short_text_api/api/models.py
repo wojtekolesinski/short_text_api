@@ -6,10 +6,9 @@ class ShortText(models.Model):
     text_id = models.BigAutoField(primary_key=True)
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100, blank=True, default='')
-    text = models.TextField(blank=False)
+    text = models.TextField(blank=False, max_length=160)
     viewcount = models.PositiveIntegerField(default=0)
-    # owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['viewcount', 'created']
+        ordering = ['-viewcount', '-created']
 
