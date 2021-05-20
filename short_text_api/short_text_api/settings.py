@@ -92,11 +92,11 @@ WSGI_APPLICATION = 'short_text_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'api',
-        'USER': 'apiadmin',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        # 'NAME': 'api',
+        # 'USER': 'apiadmin',
+        # 'PASSWORD': 'admin',
+        # 'HOST': 'localhost',
+        # 'PORT': '5432',
     }
 }
 
