@@ -10,5 +10,5 @@ class ShortText(models.Model):
     viewcount = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ['-viewcount', '-created']
+        ordering = ['-created']
 
