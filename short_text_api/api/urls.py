@@ -9,5 +9,6 @@ router.register(r'shorttexts', ShortTextViewSet)
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api-auth/register/', RegisterView.as_view()),
 ]
