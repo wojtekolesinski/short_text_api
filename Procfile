@@ -1,2 +1,4 @@
-web: python website/manage.py runserver 0.0.0.0:$PORT
+release: python manage.py makemigrations
+release: python manage.py makemigrations api
+release: python manage.py migrate
 web: gunicorn short_text_api.wsgi --log-file
