@@ -11,7 +11,7 @@ class ShortTextSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = ShortText
-        fields = ['text_id', 'title', 'text', 'viewcount', 'created']
+        fields = ['text_id', 'text', 'viewcount']
 
 
 class RegisterSerializer(serializers.HyperlinkedModelSerializer):
