@@ -36,7 +36,9 @@
     -  `?viewcount__lte=<int>`
     -  `?text=<string>`
     -  `?text__contains=<string>`
-- [shorttexts info](http://short-text-api.herokuapp.com/shorttexts/) `GET /shorttexts/<text_id>/` view of a single short text
+- [shorttexts info](http://short-text-api.herokuapp.com/shorttexts/) `GET /shorttexts/<text_id>/` view of a single short text<br>
+
+
 
 ###Endpoints requiring authentication
 
