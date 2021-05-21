@@ -133,3 +133,32 @@ class TestViews(TestSetUp):
         force_authenticate(put_request, user=user)
         response = view(put_request, pk=pk)
         self.assertEqual(response.data['viewcount'], 0)
+
+    def test_blank_texts_are_not_accepted(self):
+        self.client.post(self.register_url, data=self.user_data)
+        user = User.objects.get(username=self.user_data['username'])
+        view = ShortTextViewSet.as_view({'post': 'create'})
+
+        # Posting a blank text
+        post_request = self.factory.post(self.short_text_url, data={'text': ''})
+        force_authenticate(post_request, user=user)
+        response = view(post_request)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_max_text_length_is_160_chars(self):
+        self.client.post(self.register_url, data=self.user_data)
+        user = User.objects.get(username=self.user_data['username'])
+        view = ShortTextViewSet.as_view({'post': 'create'})
+
+        # Posting a 160 chars long text
+        post_request = self.factory.post(self.short_text_url, data={'text': 'a' * 160})
+        force_authenticate(post_request, user=user)
+        response = view(post_request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['text'], 'a' * 160)
+
+        # Posting a 161 chars long text
+        post_request = self.factory.post(self.short_text_url, data={'text': 'a' * 161})
+        force_authenticate(post_request, user=user)
+        response = view(post_request)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
