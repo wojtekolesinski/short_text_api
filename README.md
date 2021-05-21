@@ -40,6 +40,7 @@
 
 ###Endpoints requiring authentication
 
+
 ---
 - [create shorttexts](http://short-text-api.herokuapp.com/shorttexts/) `POST /shorttexts/`
 ```json
