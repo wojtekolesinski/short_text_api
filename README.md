@@ -36,7 +36,13 @@
     -  `?viewcount__lte=<int>`
     -  `?text=<string>`
     -  `?text__contains=<string>`
-- [shorttexts info](http://short-text-api.herokuapp.com/shorttexts/) `GET /shorttexts/<text_id>/` view of a single short text<br>
+    -  `?format=json` as well as modify the return type
+- [shorttexts info](http://short-text-api.herokuapp.com/shorttexts/) `GET /shorttexts/<text_id>/` view of a single short text
+  
+it is also possible to modify the content format in the link like so:
+  `/shorttexts.json/`,`/shorttexts/<text_id>.json/`, `/shorttexts.api/` etc.
+
+ 
 
 ### Endpoints requiring authentication
 
