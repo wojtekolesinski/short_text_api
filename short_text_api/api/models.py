@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
 
-# Create your models here.
+
 class ShortText(models.Model):
     text_id = models.BigAutoField(primary_key=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -11,4 +10,3 @@ class ShortText(models.Model):
 
     class Meta:
         ordering = ['-created']
-
