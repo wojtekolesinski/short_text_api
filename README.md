@@ -38,10 +38,7 @@
     -  `?text__contains=<string>`
 - [shorttexts info](http://short-text-api.herokuapp.com/shorttexts/) `GET /shorttexts/<text_id>/` view of a single short text<br>
 
-
-
-###Endpoints requiring authentication
-
+### Endpoints requiring authentication
 
 ---
 - [create shorttexts](http://short-text-api.herokuapp.com/shorttexts/) `POST /shorttexts/`
