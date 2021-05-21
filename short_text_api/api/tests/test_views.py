@@ -1,6 +1,6 @@
 from .test_setup import TestSetUp
 from rest_framework import status
-from rest_framework.test import force_authenticate, APIRequestFactory
+from rest_framework.test import force_authenticate
 from django.contrib.auth.models import User
 from ..views import ShortTextViewSet
 
@@ -29,16 +29,107 @@ class TestViews(TestSetUp):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_unauthorised_user_cant_post_shorttexts(self):
-        response = self.client.post(self.short_text_url, data={'text': 'hello'})
+        response = self.client.post(self.short_text_url, data=self.text_data[0])
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_authorised_user_can_post_shorttexts(self):
         self.client.post(self.register_url, data=self.user_data)
         user = User.objects.get(username=self.user_data['username'])
         view = ShortTextViewSet.as_view({'post': 'create'})
-        request = self.factory.post(self.short_text_url, data={'text': 'hello'})
-        force_authenticate(request, user=user)
-        response = view(request)
 
+        post_request = self.factory.post(self.short_text_url, data=self.text_data[0])
+        force_authenticate(post_request, user=user)
+        response = view(post_request)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['text'], 'hello')
+        self.assertEqual(response.data['text'], self.text_data[0]['text'])
+
+    def test_authorised_user_can_update(self):
+        self.client.post(self.register_url, data=self.user_data)
+        user = User.objects.get(username=self.user_data['username'])
+        view = ShortTextViewSet.as_view({'post': 'create', 'put': 'update'})
+
+        post_request = self.factory.post(self.short_text_url, data=self.text_data[0])
+        force_authenticate(post_request, user=user)
+        pk = str(view(post_request).data['text_id'])
+        url = f'{self.short_text_url}{pk}/'
+
+        put_request = self.factory.put(url, data=self.text_data[1])
+        force_authenticate(put_request, user=user)
+        response = view(put_request, pk=pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['text'], self.text_data[1]['text'])
+
+    def test_unauthorised_user_cant_update(self):
+        self.client.post(self.register_url, data=self.user_data)
+        user = User.objects.get(username=self.user_data['username'])
+        view = ShortTextViewSet.as_view({'post': 'create', 'put': 'update'})
+
+        post_request = self.factory.post(self.short_text_url, data=self.text_data[0])
+        force_authenticate(post_request, user=user)
+        pk = str(view(post_request).data['text_id'])
+        url = f'{self.short_text_url}{pk}/'
+
+        put_request = self.factory.put(url, data=self.text_data[1])
+        response = view(put_request, pk=pk)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_authorised_user_can_delete(self):
+        self.client.post(self.register_url, data=self.user_data)
+        user = User.objects.get(username=self.user_data['username'])
+        view = ShortTextViewSet.as_view({'post': 'create', 'delete': 'destroy'})
+
+        post_request = self.factory.post(self.short_text_url, data=self.text_data[0])
+        force_authenticate(post_request, user=user)
+        pk = str(view(post_request).data['text_id'])
+        url = f'{self.short_text_url}{pk}/'
+
+        delete_request = self.factory.delete(url)
+        force_authenticate(delete_request, user=user)
+        response = view(delete_request, pk=pk)
+        self.assertIn(response.status_code, [status.HTTP_204_NO_CONTENT, status.HTTP_200_OK, status.HTTP_202_ACCEPTED])
+
+    def test_unauthorised_user_cant_delete(self):
+        self.client.post(self.register_url, data=self.user_data)
+        user = User.objects.get(username=self.user_data['username'])
+        view = ShortTextViewSet.as_view({'post': 'create', 'delete': 'destroy'})
+
+        post_request = self.factory.post(self.short_text_url, data=self.text_data[0])
+        force_authenticate(post_request, user=user)
+        pk = str(view(post_request).data['text_id'])
+        url = f'{self.short_text_url}{pk}/'
+
+        delete_request = self.factory.delete(url)
+        response = view(delete_request, pk=pk)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_viewcount_works(self):
+        self.client.post(self.register_url, data=self.user_data)
+        user = User.objects.get(username=self.user_data['username'])
+        view = ShortTextViewSet.as_view({'post': 'create', 'put': 'update'})
+
+        # Testing viewcount upon creation
+        post_request = self.factory.post(self.short_text_url, data=self.text_data[0])
+        force_authenticate(post_request, user=user)
+        response = view(post_request)
+        self.assertEqual(response.data['viewcount'], 0)
+
+        # Testing viewwcount in list view
+        response = self.client.get(self.short_text_url)
+        self.assertEqual(response.data[0]['viewcount'], 1)
+        pk = str(response.data[0]['text_id'])
+        url = f'{self.short_text_url}{pk}/'
+
+        # Testing viewcount in instance view
+        response = self.client.get(url)
+        self.assertEqual(response.data['viewcount'], 2)
+
+        # Testing instance view multiple times
+        for i in range(1, 11):
+            response = self.client.get(url)
+            self.assertEqual(response.data['viewcount'], 2 + i)
+
+        # Testing if updating resets viewcount
+        put_request = self.factory.put(url, data=self.text_data[1])
+        force_authenticate(put_request, user=user)
+        response = view(put_request, pk=pk)
+        self.assertEqual(response.data['viewcount'], 0)

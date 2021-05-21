@@ -2,6 +2,7 @@ from rest_framework.test import APITestCase, APIRequestFactory
 from django.urls import reverse
 from faker import Faker
 
+
 class TestSetUp(APITestCase):
 
     def setUp(self):
@@ -12,6 +13,7 @@ class TestSetUp(APITestCase):
         self.faker = Faker()
 
         user = self.faker.profile(['name', 'mail', 'username'])
+        self.text_data = [{'text': self.faker.paragraph(nb_sentences=1)} for i in range(3)]
         self.user_data = {
             'email': user['mail'],
             'username': user['username'],

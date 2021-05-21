@@ -5,14 +5,20 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import User
 
 
-
 class RegisterView(generics.CreateAPIView):
+    """
+    View for user registrations, accepts only POST, and OPTIONS
+    """
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
 
 
 class ShortTextViewSet(viewsets.ModelViewSet):
+    """
+    Main API view, accepts OPTIONS, GET requests (from everyone)
+    as well as POST, PUT, DELETE from authenticated users only
+    """
     queryset = ShortText.objects.all()
     serializer_class = ShortTextSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -38,4 +44,4 @@ class ShortTextViewSet(viewsets.ModelViewSet):
         text = self.get_object()
         text.viewcount = 0
         text.save()
-        return super(ShortTextViewSet, self).update(request, *args, **kwargs)
+        return super(viewsets.ModelViewSet, self).update(request, *args, **kwargs)
